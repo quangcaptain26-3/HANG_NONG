@@ -1,0 +1,742 @@
+[2026-01-17 08:26:11] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 08:26:11] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1205",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 08:27:01] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 08:27:01] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1205",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1200",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 08:28:03] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 08:28:03] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1205",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1200",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 08:29:15] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 08:29:15] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "970",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "969",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1030",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 08:50:16] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 08:50:16] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1039",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1041",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 08:57:02] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 08:57:02] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "9",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "10",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1027",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 09:06:08] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 09:06:08] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1039",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1041",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1030",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 09:23:48] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 09:23:48] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1205",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1200",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 09:37:27] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 09:37:27] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "9",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "10",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1027",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 10:16:13] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 10:16:13] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "9",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "10",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1030",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 10:30:53] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 10:30:53] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1039",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1041",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 10:41:46] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 10:41:46] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "175",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1061",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1027",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 10:46:57] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 10:46:57] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1039",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1041",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1030",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 13:12:27] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 13:12:27] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1039",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1041",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1030",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 13:39:37] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 13:39:37] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "175",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1061",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 14:34:12] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 14:34:12] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1384",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "9",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 14:37:47] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 14:37:47] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "175",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1061",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1030",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 15:01:45] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 15:01:45] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1384",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "9",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 16:10:55] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 16:10:55] {
+  "points": [
+    {
+      "point": "1052",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1384",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "9",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1033",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 17:15:01] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 17:15:01] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "805",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "802",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1030",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
+[2026-01-17 18:29:36] POST http://10.177.117.1:8000/agvapi/taskCreate
+[2026-01-17 18:29:36] {
+  "points": [
+    {
+      "point": "263",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "996",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "995",
+      "action": "up",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    },
+    {
+      "point": "1027",
+      "action": "down",
+      "upType": 1,
+      "isReport": false,
+      "waitConfrim": false
+    }
+  ],
+  "carType": "0",
+  "systemName": "mes",
+  "score": 10000
+}
