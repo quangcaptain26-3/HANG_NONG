@@ -1,0 +1,236 @@
+# ==============================================================================
+# HƯỚNG DẪN SỬ DỤNG FILE NÀY
+# ------------------------------------------------------------------------------
+# 1. File này chứa nội dung thuyết trình cho 2 phiên bản: TIẾNG VIỆT và TIẾNG ANH.
+# 2. Mỗi Slide bao gồm:
+#    - [NỘI DUNG CHÍNH]: Các ý chính trình bày trên slide.
+#    - [DIỄN GIẢI]: Lời thoại gợi ý để bạn thuyết trình trước sếp.
+#    - [MÃ NGUỒN]: Đoạn code tiêu biểu để chứng minh tính chuyên môn.
+# 3. Hãy copy nội dung tương ứng vào PowerPoint/Google Slides.
+# ==============================================================================
+
+# PART 1: PHIÊN BẢN TIẾNG VIỆT (PROFESSIONAL VIETNAMESE)
+# ==============================================================================
+
+--------------------------------------------------------------------------------
+SLIDE 1: GIỚI THIỆU DỰ ÁN
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+Hệ thống Giám sát Vận hành AGV & Kiểm soát Chất lượng AOI
+(Smart Factory Dashboard: AGV Connectivity & AOI Quality Monitoring)
+
+- Mục tiêu: Tối ưu hóa việc theo dõi thiết bị tự động và kiểm soát tỷ lệ lỗi sản phẩm.
+- Công nghệ: Python 3.x, Tkinter, Pandas, Matplotlib.
+- Người thực hiện: [Tên của bạn]
+
+[DIỄN GIẢI]
+Kính thưa Ban lãnh đạo, dự án này được phát triển nhằm số hóa việc giám sát vận hành, giúp chúng ta nắm bắt tức thời tình trạng thiết bị và chất lượng sản xuất thông qua dữ liệu log và hình ảnh.
+
+--------------------------------------------------------------------------------
+SLIDE 2: BÀI TOAN NGHIỆP VỤ & NHU CẦU THỰC TẾ
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+Thực trạng và Giải pháp:
+- Giám sát AGV: Tự động hóa việc quét log tìm lỗi mất mạng và rớt API.
+- Kiểm soát AOI: Thống kê tỷ lệ đạt (Yield Rate) dựa trên dữ liệu hình ảnh.
+- Tối ưu báo cáo: Chuyển đổi hàng nghìn dòng log thành biểu đồ xu hướng.
+
+[DIỄN GIẢI]
+Thay vì phải kiểm tra thủ công, hệ thống sẽ tự động quét dữ liệu thô và trả về các chỉ số quan trọng, giúp rút ngắn thời gian phản ứng với các sự cố vận hành.
+
+--------------------------------------------------------------------------------
+SLIDE 3: KIẾN TRÚC HỆ THỐNG (SYSTEM ARCHITECTURE)
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+Cấu trúc Module hóa (Modular Design):
+- Core Engine: Tách biệt logic phân tích dữ liệu và giao diện hển thị.
+- Modules chuyên biệt: `agv.py` xử lý log xe, `aoi.py` xử lý ảnh.
+- Data Processing: Sử dụng Pandas để xử lý tập hợp dữ liệu lớn với hiệu năng cao.
+
+[MÃ NGUỒN]
+```python
+# Cấu trúc nạp module xử lý riêng biệt
+import agv  # Logic phân tích Log AGV (Regex-based)
+import aoi  # Logic phân loại Ảnh AOI (Filename-based)
+import pandas as pd # Engine xử lý dữ liệu bảng mạnh mẽ
+```
+
+--------------------------------------------------------------------------------
+SLIDE 4: QUY TRÌNH XỬ LÝ DỮ LIỆU (DATA WORKFLOW)
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+Luồng hoạt động thông minh:
+1. Nhập liệu (Input): Quét đa tập tin (Batch scanning).
+2. Xử lý (Processing): Bóc tách dữ liệu theo thời gian thực (Timestamp parsing).
+3. Hiển thị (Display): Tự động cập nhật giao diện (Automatic UI Updating).
+
+[MÃ NGUỒN]
+```python
+def load_agv(self):
+    # Hỗ trợ người dùng quét NHIỀU file log cùng một lúc
+    files = filedialog.askopenfilenames(title="Chọn log AGV")
+    if files:
+        # Gọi module phân tích và cập nhật Dashboard tức thì
+        self.df_offline, self.df_api, _, self.coverage = agv.parse_agv_logs(files)
+        self.update_kpi()
+        self.draw_agv_charts()
+```
+
+--------------------------------------------------------------------------------
+SLIDE 5: CHI TIẾT PHÂN TÍCH LOG AGV
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+Giải mã dữ liệu thô (Log Parsing):
+- Phát hiện rớt mạng (Offline): Sử dụng biểu thức chính quy (Regex) để bắt ID xe.
+- Phân tích API: Lọc các yêu cầu kết nối thất bại từ mã nguồn chuỗi.
+- Tần suất sự cố: Thống kê lỗi theo từng khung giờ sản xuất.
+
+[MÃ NGUỒN]
+```python
+# Kỹ thuật bóc tách lỗi 'Offline' từ dòng Log thô
+offline_match = re.search(r'(\d+)号AGV已经掉线', line)
+if offline_match:
+    agv_id = offline_match.group(1)
+    offline_events.append({'TS': timestamp, 'AGV': agv_id})
+
+# Gom nhóm dữ liệu theo giờ để tìm ra khung giờ hay lỗi nhất
+df_offline = _offline.groupby(['Hour', 'AGV']).size().reset_index(name='Count')
+```
+
+--------------------------------------------------------------------------------
+SLIDE 6: KIỂM SOÁT CHẤT LƯỢNG AOI
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+Phân tích tỷ lệ Yield Rate:
+- Phân loại (Classification): Nhận dạng PASS/FAIL từ tên tệp hình ảnh.
+- Liên kết thời gian: Gắn kết lô sản xuất với ngày tháng tương ứng.
+- Thống kê tỷ lệ: Tính toán chính xác phần trăm linh kiện đạt chuẩn.
+
+[MÃ NGUỒN]
+```python
+# Logic phân loại chất lượng dựa trên tên file ảnh
+status = 'PASS' if 'ALL PASS' in filename.upper() else 'FAIL' if 'FAIL' in filename.upper() else 'UNKNOWN'
+
+# Pivot dữ liệu để tính tỷ lệ Yield Rate hàng ngày
+summary = df.groupby(['Date', 'Status']).size().unstack(fill_value=0).reset_index()
+```
+
+--------------------------------------------------------------------------------
+SLIDE 7: GIAO DIỆN & CÔNG NGHỆ TRỰC QUAN HÓA
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+Trải nghiệm người dùng (UX) & Visualization:
+- KPI Cảnh báo: Sử dụng màu sắc thông minh (Xanh/Đỏ) để báo động sự cố.
+- Biểu đồ Matplotlib: Vẽ trực tiếp lên thanh công cụ điều khiển.
+- Nhãn dữ liệu (Data Labels): Hiển thị con số thực tế ngay trên biểu đồ.
+
+[MÃ NGUỒN]
+```python
+# Cập nhật màu sắc cảnh báo linh hoạt trên các ô KPI
+color = "#e74c3c" if total_off > 0 else "#27ae60" # Đỏ nếu có sự cố
+self.kpis['agv']['val'].config(text=f"{total_off} Lần", fg=color)
+
+# Tự động gắn nhãn (Label) lên từng cột biểu đồ bar chart
+bars = self.ax_agv_top.bar(top['AGV'].astype(str), top['Count'])
+self.ax_agv_top.bar_label(bars, padding=3, fontsize=9)
+```
+
+--------------------------------------------------------------------------------
+SLIDE 8: KẾT LUẬN & ĐỊNH HƯỚNG MỞ RỘNG
+--------------------------------------------------------------------------------
+[NỘI DUNG CHÍNH]
+- Đã số hóa thành công việc báo cáo vận hành.
+- Giảm thiểu sai sót do con người khi xử lý Log lỗi.
+- Định hướng: Tích hợp dữ liệu Real-time và Dự báo bảo trì thiết bị.
+
+# ==============================================================================
+# PART 2: PHIÊN BẢN TIẾNG ANH (PROFESSIONAL ENGLISH)
+# ==============================================================================
+
+--------------------------------------------------------------------------------
+SLIDE 1: PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+- Objective: Smart Monitoring & Yield Analysis.
+- Technologies: Python, Pandas, Matplotlib.
+
+--------------------------------------------------------------------------------
+SLIDE 2: BUSINESS CHALLENGES
+--------------------------------------------------------------------------------
+- Automated error detection in AGVs.
+- Unified quality tracking via AOI images.
+- Conversion of raw data into visual trends.
+
+--------------------------------------------------------------------------------
+SLIDE 3: SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+[CODE SNIPPET]
+```python
+import agv  # Log Parsing Logic
+import aoi  # Image Quality Logic
+import pandas as pd # Data Management Engine
+```
+
+--------------------------------------------------------------------------------
+SLIDE 4: AUTOMATED DATA PIPELINE
+--------------------------------------------------------------------------------
+[CODE SNIPPET]
+```python
+def load_agv(self):
+    files = filedialog.askopenfilenames() # Batch file selection
+    if files:
+        self.df_offline, self.df_api, _, _ = agv.parse_agv_logs(files)
+        # Instant UI reflection
+        self.update_kpi()
+        self.draw_agv_charts()
+```
+
+--------------------------------------------------------------------------------
+SLIDE 5: CORE AGV LOG ANALYSIS
+--------------------------------------------------------------------------------
+[CODE SNIPPET]
+```python
+# Using Regular Expressions for offline event detection
+offline_match = re.search(r'(\d+)号AGV已经掉线', line)
+if offline_match:
+    agv_id = offline_match.group(1)
+    offline_events.append({'TS': timestamp, 'AGV': agv_id})
+
+# Grouping data for time-series visualization
+df_offline = _offline.groupby(['Hour', 'AGV']).size().reset_index(name='Count')
+```
+
+--------------------------------------------------------------------------------
+SLIDE 6: AOI QUALITY ASSURANCE (YIELD RATE)
+--------------------------------------------------------------------------------
+[CODE SNIPPET]
+```python
+# Filename-based classification logic
+status = 'PASS' if 'ALL PASS' in filename.upper() else 'FAIL' in filename.upper()
+
+# Pivot table for daily yield calculations
+summary = df.groupby(['Date', 'Status']).size().unstack(fill_value=0).reset_index()
+```
+
+--------------------------------------------------------------------------------
+SLIDE 7: INTELLIGENT UX & VISUALIZATION
+--------------------------------------------------------------------------------
+[CODE SNIPPET]
+```python
+# Adaptive coloring for high-priority KPI alerts
+color = "#e74c3c" if total_errors > 0 else "#27ae60"
+self.kpi_widget.config(text=f"{total_errors} Errors", fg=color)
+
+# Automated bar labeling for precise data reading
+bars = self.ax.bar(data_x, data_y)
+self.ax.bar_label(bars, padding=3)
+```
+
+--------------------------------------------------------------------------------
+SLIDE 8: SUMMARY & FUTURE OUTLOOK
+--------------------------------------------------------------------------------
+- Achievement: Digitalized reporting and 100% data accuracy.
+- Roadmap: Real-time API integration and AI-based failure prediction.
+
+# ==============================================================================
+# END OF DOCUMENT
+# ==============================================================================
