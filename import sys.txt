@@ -1,0 +1,436 @@
+import sys
+import os
+import re
+import math
+import pandas as pd
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+                             QHBoxLayout, QGridLayout, QPushButton, QFileDialog, 
+                             QLabel, QFrame, QComboBox)
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
+from PyQt5.QtGui import QFont
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+
+# ==========================================
+# 1. HARDCODED CONFIGURATION
+# ==========================================
+SYSTEM_IP = "10.177.117.1"
+SYSTEM_PORT = "8000"
+
+STATIONS = [
+    {"name": "PATH", "down": "1033, 1030, 1027", "up": "263, 1052"},
+    {"name": "R650", "down": "1205", "up": "1200"},
+    {"name": "R770", "down": "1063", "up": "1065"},
+    {"name": "R370", "down": "175", "up": "1061"},
+    {"name": "ICX-8100", "down": "1039", "up": "1041"},
+    {"name": "UX7", "down": "1037", "up": "1067"},
+    {"name": "4C", "down": "991", "up": "989"},
+    {"name": "4D-Revlon1-3", "down": "987", "up": "798"},
+    {"name": "4E-Revlon2-4", "down": "805", "up": "802"},
+    {"name": "4J", "down": "972", "up": "971"},
+    {"name": "4K", "down": "970", "up": "969"},
+    {"name": "4L", "down": "1263", "up": "1260"},
+    {"name": "4M", "down": "1257", "up": "1254"},
+    {"name": "4N", "down": "1251", "up": "1248"},
+    {"name": "4P", "down": "1245", "up": "1242"},
+    {"name": "4A-LP48-NEW", "down": "1751", "up": "1749"},
+    {"name": "4B-LP8-NEW", "down": "1747", "up": "1744"},
+    {"name": "4C-NEW", "down": "1723", "up": "1724"},
+    {"name": "4D-Revlon1-3-NEW", "down": "1725", "up": "1726"},
+    {"name": "4E-Revlon2-4-NEW", "down": "1727", "up": "1728"}
+]
+
+POINT_MAP = {}
+for st in STATIONS:
+    for p in st['down'].split(','): POINT_MAP[p.strip()] = st['name']
+    for p in st['up'].split(','): POINT_MAP[p.strip()] = st['name']
+
+# ==========================================
+# 2. DATA PROCESSING THREAD
+# ==========================================
+class DataWorker(QThread):
+    oee_data_ready = pyqtSignal(object)
+    agv_data_ready = pyqtSignal(dict)
+    aoi_data_ready = pyqtSignal(int, int)
+
+    def __init__(self):
+        super().__init__()
+        self.task = ""
+        self.file_paths = []
+
+    def run(self):
+        if self.task == "OEE": self.process_oee()
+        elif self.task == "LOGS": self.process_logs()
+        elif self.task == "AOI": self.process_aoi()
+
+    def process_oee(self):
+        try:
+            df_list = []
+            for path in self.file_paths:
+                if path.endswith('.csv'): df = pd.read_csv(path)
+                else: 
+                    try: df = pd.read_excel(path)
+                    except:
+                        try:
+                            dfs = pd.read_html(path, header=0, encoding='utf-8')
+                            if dfs: df = dfs[0]
+                            else: continue
+                        except: continue
+                df_list.append(df)
+            
+            if df_list:
+                df = pd.concat(df_list, ignore_index=True)
+                df.columns = [str(c).strip() for c in df.columns]
+                for col in ['樓層', '綫', '日']:
+                    if col in df.columns: df[col] = df[col].astype(str).str.strip()
+                if 'OEE' in df.columns:
+                    df['OEE_Num'] = df['OEE'].astype(str).str.replace(r'[% ]', '', regex=True).apply(pd.to_numeric, errors='coerce')
+                self.oee_data_ready.emit(df)
+        except Exception as e: print("OEE Read Error:", e)
+
+    def process_logs(self):
+        try:
+            station_counts = {}
+            action_counts = {'UP': 0, 'DOWN': 0}
+            timeline_counts = {}
+            total_tasks = 0
+            
+            for path in self.file_paths:
+                with open(path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                blocks = re.split(r'(\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\])', content)
+                for i in range(1, len(blocks), 2):
+                    time_str = blocks[i]
+                    payload = blocks[i+1]
+                    
+                    if '"points":' in payload:
+                        points = re.findall(r'"point":\s*"(\d+)",\s*"action":\s*"(up|down)"', payload)
+                        for point, action in points:
+                            station_name = POINT_MAP.get(point, f"Unknown({point})")
+                            total_tasks += 1
+                            station_counts[station_name] = station_counts.get(station_name, 0) + 1
+                            action_counts[action.upper()] += 1
+                            hour_key = f"{time_str[12:14]}:00"
+                            timeline_counts[hour_key] = timeline_counts.get(hour_key, 0) + 1
+            
+            self.agv_data_ready.emit({
+                "stations": station_counts,
+                "actions": action_counts,
+                "timeline": dict(sorted(timeline_counts.items())),
+                "total": total_tasks
+            })
+        except Exception as e: print("Log Read Error:", e)
+
+    def process_aoi(self):
+        try:
+            pass_count = fail_count = 0
+            for folder in self.file_paths:
+                for root, dirs, files in os.walk(folder):
+                    for file in files:
+                        file_lower = file.lower()
+                        if "all pass" in file_lower: pass_count += 1
+                        elif "fail" in file_lower: fail_count += 1
+            self.aoi_data_ready.emit(pass_count, fail_count)
+        except Exception as e: print("AOI Read Error:", e)
+
+# ==========================================
+# 3. MAIN DASHBOARD (ENGLISH VERSION)
+# ==========================================
+class SmartFactoryDashboard(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Smart Factory Dashboard - AGV & OEE Analysis")
+        self.setGeometry(50, 50, 1366, 768)
+        
+        self.bg_dark = "#0a192f"
+        self.panel_dark = "#112240"
+        self.text_light = "#ccd6f6"
+        self.accent_color = "#64ffda"
+        self.setStyleSheet(f"background-color: {self.bg_dark}; color: {self.text_light};")
+        
+        self.oee_df = None 
+        self.worker = DataWorker()
+        self.worker.oee_data_ready.connect(self.handle_oee_data_ready)
+        self.worker.agv_data_ready.connect(self.update_agv_dashboard)
+        self.worker.aoi_data_ready.connect(self.update_aoi_cards)
+        
+        self.init_ui()
+
+    def init_ui(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        grid = QGridLayout(central_widget)
+        grid.setContentsMargins(15, 15, 15, 15)
+        grid.setSpacing(15)
+
+        # ROW 0: CONTROLS & KPIs
+        ctrl_panel = self.create_panel()
+        ctrl_layout = QVBoxLayout(ctrl_panel)
+        ctrl_layout.addWidget(QLabel("<b>⚙️ SYSTEM & DATA</b>"))
+        
+        self.btn_log = self.create_button(" Load AGV Logs", "#0288d1")
+        self.btn_aoi = self.create_button("️ Select AOI Folder", "#f57c00")
+        
+        oee_layout = QVBoxLayout()
+        self.btn_oee = self.create_button(" Load OEE File", "#7b1fa2")
+        self.combo_oee_date = QComboBox()
+        self.combo_oee_date.addItem(" Select Date (All)")
+        self.combo_oee_date.setStyleSheet(f"background-color: {self.bg_dark}; color: {self.text_light}; padding: 5px;")
+        self.combo_oee_date.currentTextChanged.connect(self.filter_oee_by_date)
+        
+        oee_layout.addWidget(self.btn_oee)
+        oee_layout.addWidget(self.combo_oee_date)
+        
+        self.btn_log.clicked.connect(self.load_logs)
+        self.btn_oee.clicked.connect(self.load_oee)
+        self.btn_aoi.clicked.connect(self.load_aoi)
+        
+        ctrl_layout.addWidget(self.btn_log)
+        ctrl_layout.addLayout(oee_layout)
+        ctrl_layout.addWidget(self.btn_aoi)
+        ctrl_layout.addStretch()
+        grid.addWidget(ctrl_panel, 0, 0)
+
+        # AGV KPI
+        self.agv_kpi_panel = self.create_panel()
+        agv_kpi_layout = QVBoxLayout(self.agv_kpi_panel)
+        self.lbl_agv_total = QLabel("0")
+        self.lbl_agv_total.setStyleSheet(f"font-size: 40px; font-weight: bold; color: {self.accent_color};")
+        self.lbl_agv_total.setAlignment(Qt.AlignCenter)
+        self.lbl_agv_hot = QLabel("Busiest Station: --")
+        self.lbl_agv_hot.setAlignment(Qt.AlignCenter)
+        agv_kpi_layout.addWidget(QLabel("<b> TOTAL AGV TASKS</b>", alignment=Qt.AlignCenter))
+        agv_kpi_layout.addWidget(self.lbl_agv_total)
+        agv_kpi_layout.addWidget(self.lbl_agv_hot)
+        grid.addWidget(self.agv_kpi_panel, 0, 1)
+
+        # AOI KPI
+        self.aoi_kpi_panel = self.create_panel()
+        aoi_kpi_layout = QVBoxLayout(self.aoi_kpi_panel)
+        self.lbl_aoi_rate = QLabel("0%")
+        self.lbl_aoi_rate.setStyleSheet(f"font-size: 40px; font-weight: bold; color: #4CAF50;")
+        self.lbl_aoi_rate.setAlignment(Qt.AlignCenter)
+        self.lbl_aoi_total = QLabel("Total Inspections: 0")
+        self.lbl_aoi_total.setAlignment(Qt.AlignCenter)
+        aoi_kpi_layout.addWidget(QLabel("<b>️ AOI PASS RATE</b>", alignment=Qt.AlignCenter))
+        aoi_kpi_layout.addWidget(self.lbl_aoi_rate)
+        aoi_kpi_layout.addWidget(self.lbl_aoi_total)
+        grid.addWidget(self.aoi_kpi_panel, 0, 2)
+
+        # CHARTS GRID
+        self.fig_agv_st, self.ax_agv_st, self.canvas_agv_st = self.create_dark_chart()
+        grid.addWidget(self.canvas_agv_st, 1, 0)
+
+        self.fig_agv_act, self.ax_agv_act, self.canvas_agv_act = self.create_dark_chart()
+        grid.addWidget(self.canvas_agv_act, 1, 1)
+
+        self.fig_agv_time, self.ax_agv_time, self.canvas_agv_time = self.create_dark_chart()
+        grid.addWidget(self.canvas_agv_time, 1, 2)
+
+        self.fig_f4, self.ax_f4, self.canvas_f4 = self.create_dark_chart()
+        grid.addWidget(self.canvas_f4, 2, 0)
+        
+        self.fig_f5, self.ax_f5, self.canvas_f5 = self.create_dark_chart()
+        grid.addWidget(self.canvas_f5, 2, 1)
+
+        self.fig_pie, self.ax_pie, self.canvas_pie = self.create_dark_chart()
+        grid.addWidget(self.canvas_pie, 2, 2)
+
+        grid.setRowStretch(0, 1)
+        grid.setRowStretch(1, 2)
+        grid.setRowStretch(2, 2)
+
+    def create_panel(self):
+        panel = QFrame()
+        panel.setStyleSheet(f"background-color: {self.panel_dark}; border-radius: 8px;")
+        return panel
+
+    def create_button(self, text, bg_color):
+        btn = QPushButton(text)
+        btn.setFont(QFont("Arial", 10, QFont.Bold))
+        btn.setStyleSheet(f"background-color: {bg_color}; color: white; border-radius: 5px; padding: 10px;")
+        return btn
+
+    def create_dark_chart(self):
+        fig = Figure()
+        fig.patch.set_facecolor(self.panel_dark)
+        canvas = FigureCanvas(fig)
+        canvas.setStyleSheet(f"background-color: {self.panel_dark}; border-radius: 8px;")
+        ax = fig.add_subplot(111)
+        self.apply_dark_theme_to_ax(ax)
+        canvas.mpl_connect("motion_notify_event", self.on_hover)
+        return fig, ax, canvas
+
+    def apply_dark_theme_to_ax(self, ax):
+        ax.set_facecolor(self.panel_dark)
+        ax.tick_params(colors=self.text_light)
+        ax.xaxis.label.set_color(self.text_light)
+        ax.yaxis.label.set_color(self.text_light)
+        ax.title.set_color(self.accent_color)
+        for spine in ax.spines.values(): spine.set_edgecolor('#333333')
+
+    # --- SMOOTH HOVER LOGIC ---
+    def create_annotation(self, ax):
+        annot = ax.annotate("", xy=(0,0), xytext=(0, 20), textcoords="offset points", 
+                            ha='center', va='bottom', zorder=20, color=self.text_light,
+                            bbox=dict(boxstyle="round,pad=0.5", fc="#0a192f", ec=self.accent_color, lw=1, alpha=0.9))
+        annot.set_visible(False)
+        annot.set_picker(False)
+        return annot
+
+    def on_hover(self, event):
+        ax = event.inaxes
+        if ax is None or not hasattr(ax, 'annot'): return
+
+        annot = ax.annot
+        chart_type = getattr(ax, 'chart_type', None)
+        is_over = False
+
+        if chart_type == 'bar':
+            for i, bar in enumerate(ax.bars):
+                cont, _ = bar.contains(event)
+                if cont:
+                    val = bar.get_height()
+                    new_text = f" {ax.x_label}: {ax.labels[i]} \n {ax.y_label}: {val:.1f if isinstance(val, float) else val} "
+                    if not annot.get_visible() or annot.get_text() != new_text:
+                        annot.xy = (bar.get_x() + bar.get_width() / 2, val)
+                        annot.set_text(new_text)
+                        annot.set_visible(True)
+                        event.canvas.draw_idle()
+                    is_over = True
+                    break
+
+        elif chart_type == 'pie':
+            for i, wedge in enumerate(ax.wedges):
+                cont, _ = wedge.contains(event)
+                if cont:
+                    val = ax.values[i]
+                    total = sum(ax.values)
+                    pct = (val/total*100) if total > 0 else 0
+                    new_text = f" {ax.labels[i]}: {val} ({pct:.1f}%) "
+                    if not annot.get_visible() or annot.get_text() != new_text:
+                        theta = math.radians((wedge.theta1 + wedge.theta2) / 2.0)
+                        r = wedge.r * 0.6
+                        annot.xy = (r * math.cos(theta) + wedge.center[0], r * math.sin(theta) + wedge.center[1])
+                        annot.set_text(new_text)
+                        annot.set_visible(True)
+                        event.canvas.draw_idle()
+                    is_over = True
+                    break
+
+        elif chart_type == 'line':
+            cont, ind = ax.line.contains(event)
+            if cont:
+                idx = ind["ind"][0]
+                x_pos, y_pos = ax.line.get_xdata()[idx], ax.line.get_ydata()[idx]
+                new_text = f" Time: {ax.labels[idx]} \n Tasks: {ax.values[idx]} "
+                if not annot.get_visible() or annot.get_text() != new_text:
+                    annot.xy = (x_pos, y_pos)
+                    annot.set_text(new_text)
+                    annot.set_visible(True)
+                    event.canvas.draw_idle()
+                is_over = True
+
+        if not is_over and annot.get_visible():
+            annot.set_visible(False)
+            event.canvas.draw_idle()
+
+    # --- DATA HANDLERS ---
+    def load_logs(self):
+        files, _ = QFileDialog.getOpenFileNames(self, "Select Logs", "", "Log Files (*.log *.txt)")
+        if files:
+            self.worker.task = "LOGS"; self.worker.file_paths = files; self.worker.start()
+
+    def load_oee(self):
+        files, _ = QFileDialog.getOpenFileNames(self, "Select OEE", "", "Excel/CSV (*.xls *.xlsx *.csv)")
+        if files:
+            self.worker.task = "OEE"; self.worker.file_paths = files; self.worker.start()
+
+    def load_aoi(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select AOI Folder")
+        if folder:
+            self.worker.task = "AOI"; self.worker.file_paths = [folder]; self.worker.start()
+
+    def handle_oee_data_ready(self, df):
+        self.oee_df = df
+        self.combo_oee_date.blockSignals(True); self.combo_oee_date.clear()
+        self.combo_oee_date.addItem(" Select Date (All)")
+        if df is not None and not df.empty and '日' in df.columns:
+            for d in sorted(df['日'].dropna().unique()): self.combo_oee_date.addItem(str(d))
+        self.combo_oee_date.blockSignals(False); self.draw_oee_charts(df)
+
+    def filter_oee_by_date(self, selected_date):
+        if self.oee_df is None: return
+        df = self.oee_df if "All" in selected_date else self.oee_df[self.oee_df['日'].astype(str) == selected_date]
+        self.draw_oee_charts(df)
+
+    def update_agv_dashboard(self, data):
+        self.lbl_agv_total.setText(str(data['total']))
+        filtered = {k: v for k, v in data['stations'].items() if k != "PATH"}
+        if filtered:
+            hot = max(filtered, key=filtered.get)
+            self.lbl_agv_hot.setText(f"Busiest Station: {hot} ({filtered[hot]} hits)")
+
+        # AGV Bar
+        self.ax_agv_st.clear(); self.apply_dark_theme_to_ax(self.ax_agv_st)
+        if filtered:
+            top10 = dict(sorted(filtered.items(), key=lambda x: x[1], reverse=True)[:10])
+            self.ax_agv_st.bars = self.ax_agv_st.bar(list(top10.keys()), list(top10.values()), color="#3498db")
+            self.ax_agv_st.set_title("Top Active Stations (AGV)"); self.ax_agv_st.tick_params(axis='x', rotation=30)
+            self.ax_agv_st.annot = self.create_annotation(self.ax_agv_st)
+            self.ax_agv_st.labels, self.ax_agv_st.chart_type = list(top10.keys()), 'bar'
+            self.ax_agv_st.x_label, self.ax_agv_st.y_label = "Station", "Hits"
+        self.canvas_agv_st.draw()
+
+        # AGV Pie
+        self.ax_agv_act.clear(); self.apply_dark_theme_to_ax(self.ax_agv_act)
+        if sum(data['actions'].values()) > 0:
+            self.ax_agv_act.wedges, _, _ = self.ax_agv_act.pie(data['actions'].values(), labels=data['actions'].keys(), colors=['#4CAF50', '#F44336'], autopct='%1.1f%%', startangle=90)
+            self.ax_agv_act.set_title("Action Ratio (UP/DOWN)")
+            self.ax_agv_act.annot = self.create_annotation(self.ax_agv_act)
+            self.ax_agv_act.labels, self.ax_agv_act.values, self.ax_agv_act.chart_type = list(data['actions'].keys()), list(data['actions'].values()), 'pie'
+        self.canvas_agv_act.draw()
+
+        # AGV Line
+        self.ax_agv_time.clear(); self.apply_dark_theme_to_ax(self.ax_agv_time)
+        if data['timeline']:
+            h, c = list(data['timeline'].keys()), list(data['timeline'].values())
+            self.ax_agv_time.line = self.ax_agv_time.plot(h, c, marker='o', markersize=6, color=self.accent_color, picker=5)[0]
+            self.ax_agv_time.fill_between(h, c, color=self.accent_color, alpha=0.2)
+            self.ax_agv_time.set_title("Hourly AGV Traffic Flow"); self.ax_agv_time.tick_params(axis='x', rotation=45)
+            self.ax_agv_time.annot = self.create_annotation(self.ax_agv_time)
+            self.ax_agv_time.labels, self.ax_agv_time.values, self.ax_agv_time.chart_type = h, c, 'line'
+        self.canvas_agv_time.draw()
+
+    def update_aoi_cards(self, pass_count, fail_count):
+        total = pass_count + fail_count
+        rate = (pass_count/total*100) if total > 0 else 0
+        self.lbl_aoi_rate.setText(f"{rate:.1f}%")
+        self.lbl_aoi_total.setText(f"Pass: {pass_count} | Fail: {fail_count}")
+        
+        self.ax_pie.clear(); self.apply_dark_theme_to_ax(self.ax_pie)
+        if total > 0:
+            self.ax_pie.wedges, _, _ = self.ax_pie.pie([pass_count, fail_count], labels=['PASS', 'FAIL'], colors=['#4CAF50', '#F44336'], autopct='%1.1f%%', startangle=90)
+            self.ax_pie.set_title("AOI Quality Details")
+            self.ax_pie.annot = self.create_annotation(self.ax_pie)
+            self.ax_pie.labels, self.ax_pie.values, self.ax_pie.chart_type = ['PASS', 'FAIL'], [pass_count, fail_count], 'pie'
+        self.canvas_pie.draw()
+
+    def draw_oee_charts(self, df):
+        for ax, floor, color in [(self.ax_f4, 'F4', '#9b59b6'), (self.ax_f5, 'F5', '#e67e22')]:
+            ax.clear(); self.apply_dark_theme_to_ax(ax)
+            if df is not None and not df.empty and 'OEE_Num' in df.columns:
+                sub = df[df['樓層'] == floor]
+                if not sub.empty:
+                    avg = sub.groupby('綫')['OEE_Num'].mean().dropna()
+                    ax.bars = ax.bar(avg.index, avg.values, color=color)
+                    ax.set_title(f"OEE Performance - Floor {floor}"); ax.set_ylim(0, 105)
+                    ax.annot = self.create_annotation(ax)
+                    ax.labels, ax.chart_type = list(avg.index), 'bar'
+                    ax.x_label, ax.y_label = "Line", "OEE (%)"
+            ax.figure.canvas.draw()
+
+if __name__ == '__main:
+app = QApplication(sys.argv); app.setStyle("Fusion")
+    window = SmartFactoryDashboard(); window.showMaximized(); sys.exit(app.exec_())
